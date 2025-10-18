@@ -9,27 +9,24 @@ type BeanMotion = {
   y: MotionValue<number>;
   opacity: MotionValue<number>;
   rotate: MotionValue<number>;
-  squish: MotionValue<number>;
 };
 
 function useBean(
   progress: MotionValue<number>,
   delay: number,
   offset: number,
-  baseRotate: number,
-  landingDepth: number
+  baseRotate: number
 ): BeanMotion {
-  const y = useTransform(progress, [0.34 + delay, 0.78 + delay], [-180, landingDepth]);
-  const x = useTransform(progress, [0.32 + delay, 0.56 + delay], [offset * 0.12, offset]);
+  const y = useTransform(progress, [0.36 + delay, 0.82 + delay], [-180, 150]);
+  const x = useTransform(progress, [0.34 + delay, 0.54 + delay], [offset * 0.15, offset]);
   const opacity = useTransform(
     progress,
-    [0.3 + delay, 0.36 + delay, 0.82 + delay, 0.88 + delay],
+    [0.32 + delay, 0.38 + delay, 0.82 + delay, 0.88 + delay],
     [0, 1, 1, 0]
   );
-  const rotate = useTransform(progress, [0.34 + delay, 0.78 + delay], [baseRotate, baseRotate * 1.8]);
-  const squish = useTransform(progress, [0.7 + delay, 0.78 + delay, 0.84 + delay], [1, 0.76, 1]);
+  const rotate = useTransform(progress, [0.36 + delay, 0.82 + delay], [baseRotate, baseRotate * 1.8]);
 
-  return { x, y, opacity, rotate, squish };
+  return { x, y, opacity, rotate };
 }
 
 export function Scene() {
@@ -63,8 +60,6 @@ export function Scene() {
   const panRise = useTransform(smoothProgress, [0.4, 0.6], [140, 0]);
   const flameGlow = useTransform(smoothProgress, [0.55, 0.7], [0, 1]);
   const panTilt = useTransform(canTilt, [-52, 0], [-6, 0]);
-  const sizzleOpacity = useTransform(smoothProgress, [0.58, 0.72], [0, 1]);
-  const sizzleScale = useTransform(smoothProgress, [0.6, 0.74], [0.8, 1.3]);
 
   // Steam lifts in soft waves once beans land.
   const steamOpacity = useTransform(smoothProgress, [0.6, 0.75], [0, 1]);
@@ -75,11 +70,11 @@ export function Scene() {
   const messageRise = useTransform(smoothProgress, [0.75, 1], [40, 0]);
 
   const beanMotions: BeanMotion[] = [
-    useBean(smoothProgress, 0, -58, -18, 224),
-    useBean(smoothProgress, 0.035, -12, 14, 232),
-    useBean(smoothProgress, 0.07, 46, -6, 228),
-    useBean(smoothProgress, 0.105, -26, 18, 236),
-    useBean(smoothProgress, 0.14, 34, -12, 230),
+    useBean(smoothProgress, 0, -58, -18),
+    useBean(smoothProgress, 0.035, -8, 12),
+    useBean(smoothProgress, 0.07, 46, -6),
+    useBean(smoothProgress, 0.105, -26, 18),
+    useBean(smoothProgress, 0.14, 34, -12),
   ];
 
   return (
@@ -120,14 +115,7 @@ export function Scene() {
             {beanMotions.map((bean, index) => (
               <motion.span
                 key={index}
-                style={{
-                  x: bean.x,
-                  y: bean.y,
-                  rotate: bean.rotate,
-                  opacity: bean.opacity,
-                  scaleY: bean.squish,
-                  transformOrigin: "center bottom",
-                }}
+                style={{ x: bean.x, y: bean.y, rotate: bean.rotate, opacity: bean.opacity }}
                 className="absolute left-1/2 h-8 w-6 -translate-x-1/2 rounded-full bg-gradient-to-br from-[#7f1d1d] via-[#a7202a] to-[#6a0f17] shadow-[0_18px_22px_-12px_rgba(50,8,8,0.55)]"
               >
                 <span className="absolute inset-1 rounded-full bg-gradient-to-br from-[#f7b4b4]/40 to-transparent" />
@@ -154,12 +142,6 @@ export function Scene() {
             <div className="relative mt-4 h-20 w-full overflow-hidden rounded-[44px] bg-gradient-to-br from-[#1d1d20] via-[#242429] to-[#141417] shadow-[0_30px_50px_-40px_rgba(15,15,22,0.7)]">
               <div className="absolute inset-x-6 bottom-2 h-1 rounded-full bg-white/10" />
               <motion.div
-                className="absolute left-1/2 top-2 h-12 w-28 -translate-x-1/2 rounded-full bg-gradient-to-b from-white/20 via-white/5 to-transparent blur-3xl"
-                style={{ opacity: sizzleOpacity, scale: sizzleScale }}
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.div
                 className="absolute inset-x-10 bottom-0 h-8 rounded-full bg-gradient-to-t from-[#3d7aff]/60 via-[#6c9fff]/30 to-transparent blur-2xl"
                 style={{ opacity: flameGlow }}
                 animate={{ scaleX: [0.9, 1.05, 0.95] }}
@@ -170,15 +152,15 @@ export function Scene() {
 
           {/* Steam wisps */}
           <motion.div
-            className="pointer-events-none absolute inset-x-auto bottom-28 flex w-36 flex-col items-center gap-3"
+            className="pointer-events-none absolute inset-x-auto bottom-28 flex w-32 flex-col items-center gap-3"
             style={{ opacity: steamOpacity, y: steamDrift }}
           >
             {[0, 1, 2].map((index) => (
               <motion.span
                 key={index}
-                className="h-12 w-12 rounded-full bg-gradient-to-b from-white/45 via-white/10 to-transparent blur-2xl"
-                animate={{ y: [0, -16, 0], opacity: [0.8, 1, 0.6] }}
-                transition={{ duration: 6.5, repeat: Infinity, delay: index * 1.1, ease: "easeInOut" }}
+                className="h-10 w-10 rounded-full bg-gradient-to-b from-white/40 to-transparent blur-xl"
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 6, repeat: Infinity, delay: index * 1.2, ease: "easeInOut" }}
               />
             ))}
           </motion.div>
